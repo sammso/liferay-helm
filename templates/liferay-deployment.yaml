@@ -1,0 +1,69 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+    name: {{ .Release.Name }}-portal
+    labels:
+        app: liferay
+spec:
+    selector:
+        matchLabels:
+            app: liferay
+    progressDeadlineSeconds: 600
+    replicas: 1
+    strategy:
+        rollingUpdate:
+            maxSurge: 1
+            maxUnavailable: 0
+        type: RollingUpdate
+    template:
+        metadata:
+            labels:
+                app: liferay
+        spec:
+            containers:
+            - env:
+              {{- range $key, $value := .Values.environmentalVariables }}
+              - name: {{ $key }}
+                value: "{{ $value }}"
+              {{- end }}
+              image: "{{ .Values.image.name }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+              resources:
+                requests: 
+                  memory: "4096Mi"
+                  cpu: "4"
+                limits: 
+                  memory: "8128Mi"
+                  cpu: "8"
+              name: {{ .Release.Name }}-portal
+              ports:
+              - containerPort: 8080 # HTTPS urls generated here
+              - containerPort: 8081 # HTTP urls generated here
+              - containerPort: 11311 # OSGi Gogo shell urls generated here
+              volumeMounts: 
+              - mountPath: /liferayconfigs
+                name: liferay-config-vol
+                readOnly: true   
+              - mountPath: /mnt/liferay/scripts
+                name: liferay-scripts-vol
+                readOnly: true       
+            volumes: 
+            - name: liferay-config-vol
+              configMap:
+                name: liferay-config
+                items:
+                {{- if .Values.osgi }}
+                {{- range $fileName, $config := .Values.osgiConfig }}
+                - key: osgi-{{ $fileName }}
+                  path: osgi/configs/{{ $fileName }}.config
+                {{- end }}
+                {{- end }}
+                - key: portal-ext.properties
+                  path: portal-ext.properties 
+                - key: tomcat-server.xml
+                  path: tomcat/conf/server.xml 
+            - name: liferay-scripts-vol
+              configMap:
+                name: liferay-scripts
+                items:
+                - key: configure.sh
+                  path: configure.sh

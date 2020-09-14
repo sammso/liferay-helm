@@ -1,0 +1,6 @@
+apiVersion: v2
+name: liferay
+appVersion: "7.3.4"
+description: Liferay portal CE 7.3.4
+version: 0.1.0
+type: application

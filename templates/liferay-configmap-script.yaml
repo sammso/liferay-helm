@@ -1,0 +1,12 @@
+apiVersion: v1
+data:
+  configure.sh: |+
+    \cp -Rf /liferayconfigs/osgi/configs/* /opt/liferay/osgi/configs/
+    \cp -Rf /liferayconfigs/tomcat/conf/* /opt/liferay/tomcat/conf/
+    \cp -f /liferayconfigs/portal-ext.properties /opt/liferay/
+
+    chown -R liferay:liferay /opt/liferay
+
+kind: ConfigMap
+metadata:
+  name: liferay-scripts
