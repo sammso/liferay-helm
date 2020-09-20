@@ -51,7 +51,7 @@ spec:
               configMap:
                 name: liferay-config
                 items:
-                {{- if .Values.osgi }}
+                {{- if .Values.osgiConfig }}
                 {{- range $fileName, $config := .Values.osgiConfig }}
                 - key: osgi-{{ $fileName }}
                   path: osgi/configs/{{ $fileName }}.config

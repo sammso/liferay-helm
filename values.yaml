@@ -17,6 +17,7 @@ environmentalVariables:
   LIFERAY_WEB_PERIOD_SERVER_PERIOD_DISPLAY_PERIOD_NODE: "true"
   LIFERAY_REDIRECT_PERIOD_URL_PERIOD_SECURITY_PERIOD_MODE: "domain"
   LIFERAY_REDIRECT_PERIOD_URL_PERIOD_DOMAINS_PERIOD_ALLOWED: 
+  DOMAINNAME: "{{ hello }}"
 #
 # tomcat.xml server.xml at .yaml frormat
 # 
@@ -130,40 +131,44 @@ portalProperties:
   - Pacific/Auckland
   - Pacific/Enderbury
   - Pacific/Kiritimati
-#  dl.store.impl: com.liferay.portal.store.s3.S3Store
+  dl.store.impl: com.liferay.portal.store.s3.S3Store
+  jdbc.default.driverClassName: com.mysql.cj.jdbc.Driver
+  jdbc.default.url: jdbc:mysql://lrs-mysql.lr1.svc.cluster.local/lportal?characterEncoding=UTF-8&dontTrackOpenResources=true&holdResultsOpenOverStatementClose=true&serverTimezone=GMT&useFastDateParsing=false&useUnicode=true
+  jdbc.default.username: root
+  jdbc.default.password: admin
 #
 #  OSGi configurations at .yaml format
 #
-#osgiConfig:
-#  com.liferay.portal.store.s3.configuration.S3StoreConfiguration:
-#    accessKey: myaccesskey
-#    bucketName: liferay
-#    cacheDirCleanUpExpunge: 7
-#    cacheDirCleanUpFrequency: 100
-#    connectionProtocol: HTTP
-#    connectionTimeout: 10000
-#    corePoolSize: 7
-#    httpClientMaxConnections: 50
-#    httpClientMaxErrorRetry: 5
-#    maxPoolSize: 20
-#    minimumUploadPartSize: "5242880"
-#    multipartUploadThreshold: "10485760"
-#    ntlmProxyDomain: ''
-#    ntlmProxyWorkstation: ''
-#    proxyAuthType: none
-#    proxyHost: ''
-#    proxyPassword: ''
-#    proxyPort: 12345
-#    proxyUsername: ''
-#    s3Endpoint: 'http://10.43.24.141:9000'
-#    s3PathStyle: true
-#    s3Region: us-east-1
-#    s3StorageClass: STANDARD
-#    secretKey: mysecretkey
-#    signerOverride: AWSS3V4SignerType
+osgiConfig:
+  com.liferay.portal.store.s3.configuration.S3StoreConfiguration:
+    accessKey: liferaySecret
+    bucketName: liferay
+    cacheDirCleanUpExpunge: 7
+    cacheDirCleanUpFrequency: 100
+    connectionProtocol: HTTP
+    connectionTimeout: 10000
+    corePoolSize: 7
+    httpClientMaxConnections: 50
+    httpClientMaxErrorRetry: 5
+    maxPoolSize: 20
+    minimumUploadPartSize: "5242880"
+    multipartUploadThreshold: "10485760"
+    ntlmProxyDomain: ''
+    ntlmProxyWorkstation: ''
+    proxyAuthType: none
+    proxyHost: ''
+    proxyPassword: ''
+    proxyPort: 12345
+    proxyUsername: ''
+    s3Endpoint: 'http://lrs-minio.lr1.svc.cluster.local:9000'
+    s3PathStyle: true
+    s3Region: us-east-1
+    s3StorageClass: STANDARD
+    secretKey: liferayPassword
+    signerOverride: AWSS3V4SignerType
 #  com.liferay.portal.search.elasticsearch7.configuration.ElasticsearchConfiguration:
 #    operationMode: REMOTE
 #    indexNamePrefix: liferay-
-#    transportAddresses: '10.43.192.220:9300'
-#    clusterName: liferay_cluster
+#    transportAddresses: 'elasticsearch-master.lr1.svc.cluster.local:9300'
+#    clusterName: LiferayElasticsearchCluster
 #    logExceptionsOnly: false
