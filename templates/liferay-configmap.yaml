@@ -1,5 +1,147 @@
 apiVersion: v1
-{{- include "liferay.config" .Values }}
+data:
+  tomcat-server.xml: |+
+    <?xml version="1.0" encoding="UTF-8"?>
+    <Server port="8005" shutdown="SHUTDOWN">
+    <GlobalNamingResources>
+    <Resource auth="Container" description="User database that can be updated and saved" factory="org.apache.catalina.users.MemoryUserDatabaseFactory" name="UserDatabase" pathname="conf/tomcat-users.xml" type="org.apache.catalina.UserDatabase"/>
+    </GlobalNamingResources>
+    <Listener className="org.apache.catalina.startup.VersionLoggerListener"/>
+    <Listener SSLEngine="on" className="org.apache.catalina.core.AprLifecycleListener"/>
+    <Listener className="org.apache.catalina.core.JreMemoryLeakPreventionListener"/>
+    <Listener className="org.apache.catalina.mbeans.GlobalResourcesLifecycleListener"/>
+    <Listener className="org.apache.catalina.core.ThreadLocalLeakPreventionListener"/>
+    <Service name="Catalina">
+    <Connector URIEncoding="UTF-8" connectionTimeout="20000" executor="tomcatThreadPool" port="8080" protocol="HTTP/1.1" redirectPort="8443" scheme="https" secure="true"/>
+    <Connector URIEncoding="UTF-8" connectionTimeout="20000" executor="tomcatThreadPool" port="8081" protocol="HTTP/1.1" redirectPort="8443"/>
+    <Engine defaultHost="localhost" name="Catalina">
+    <Host appBase="webapps" autoDeploy="true" name="localhost" unpackWARs="true"/>
+    <Realm className="org.apache.catalina.realm.LockOutRealm">
+    <Realm className="org.apache.catalina.realm.UserDatabaseRealm" resourceName="UserDatabase"/>
+    </Realm>
+    </Engine>
+    <Executor maxThreads="150" minSpareThreads="4" name="tomcatThreadPool" namePrefix="catalina-exec-"/>
+    </Service>
+    </Server>
+  jdbctcp.xml: |+
+    <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xmlns="urn:org:jgroups"
+            xsi:schemaLocation="urn:org:jgroups http://www.jgroups.org/schema/jgroups.xsd">
+        <TCP bind_port="7800"
+             recv_buf_size="${tcp.recv_buf_size:130k}"
+             send_buf_size="${tcp.send_buf_size:130k}"
+             max_bundle_size="64K"
+             sock_conn_timeout="300"
+             thread_pool.min_threads="0"
+             thread_pool.max_threads="20"
+             thread_pool.keep_alive_time="30000"/>
+        <JDBC_PING  connection_url="jdbc:mysql://lrs-mysql.{{ .Release.Namespace }}.svc.cluster.local/lportal?characterEncoding=UTF-8"
+             connection_username="root"
+             connection_password="admin"
+             connection_driver="com.mysql.cj.jdbc.Driver" />
+        <MERGE3  min_interval="10000"
+                 max_interval="30000"/>
+        <FD_SOCK/>
+        <FD_ALL timeout="9000" interval="3000" />
+        <VERIFY_SUSPECT timeout="1500"  />
+        <BARRIER />
+        <pbcast.NAKACK2 use_mcast_xmit="false"
+                       discard_delivered_msgs="true"/>
+        <UNICAST3 />
+        <pbcast.STABLE desired_avg_gossip="50000"
+                       max_bytes="4M"/>
+        <pbcast.GMS print_local_addr="true" join_timeout="2000"/>
+        <UFC max_credits="2M"
+             min_threshold="0.4"/>
+        <MFC max_credits="2M"
+             min_threshold="0.4"/>
+        <FRAG2 frag_size="60K"  />
+        <!--RSVP resend_interval="2000" timeout="10000"/-->
+        <pbcast.STATE_TRANSFER/>
+    </config>
+  portal-ext.properties: |+ 
+    company.default.locale=fi_FI 
+    company.default.name=Rancher Portal 
+    company.default.time.zone=Europe/Helsinki
+    cluster.link.enabled=true
+    cluster.link.channel.properties.control=/opt/liferay/jdbctcp.xml
+    cluster.link.channel.properties.transport.0=/opt/liferay/jdbctcp.xml
+    dl.store.impl=com.liferay.portal.store.s3.S3Store 
+    jdbc.default.driverClassName=com.mysql.cj.jdbc.Driver
+    jdbc.default.password=admin 
+    jdbc.default.url=jdbc:mysql://lrs-mysql.{{ .Release.Namespace }}.svc.cluster.local/lportal?characterEncoding=UTF-8&dontTrackOpenResources=true&holdResultsOpenOverStatementClose=true&serverTimezone=GMT&useFastDateParsing=false&useUnicode=true 
+    jdbc.default.username=root 
+    timezones=Pacific/Midway, Pacific/Honolulu, America/Anchorage, America/Los_Angeles, America/Phoenix, America/Denver, America/Chicago, America/New_York, America/Caracas, America/Puerto_Rico, America/St_Johns, America/Sao_Paulo, America/Noronha, Atlantic/Azores, UTC, Europe/Lisbon, Europe/Paris, Europe/Helsinki, Europe/Istanbul, Asia/Jerusalem, Asia/Baghdad, Asia/Tehran, Asia/Dubai, Asia/Kabul, Asia/Karachi, Asia/Calcutta, Asia/Katmandu, Asia/Dhaka, Asia/Rangoon, Asia/Saigon, Asia/Shanghai, Asia/Tokyo, Asia/Seoul, Australia/Perth, Australia/Eucla, Australia/Darwin, Australia/Sydney, Australia/Lord_Howe, Pacific/Guadalcanal, Pacific/Auckland, Pacific/Enderbury, Pacific/Kiritimati 
+  osgi-com.liferay.portal.store.s3.configuration.S3StoreConfiguration: |+ 
+     accessKey="liferaySecret" 
+     bucketName="liferay" 
+     cacheDirCleanUpExpunge="7" 
+     cacheDirCleanUpFrequency="100" 
+     connectionProtocol="HTTP" 
+     connectionTimeout="10000" 
+     corePoolSize="7" 
+     httpClientMaxConnections="50" 
+     httpClientMaxErrorRetry="5" 
+     maxPoolSize="20" 
+     minimumUploadPartSize="5242880" 
+     multipartUploadThreshold="10485760" 
+     ntlmProxyDomain="" 
+     ntlmProxyWorkstation="" 
+     proxyAuthType="none" 
+     proxyHost="" 
+     proxyPassword="" 
+     proxyPort="12345" 
+     proxyUsername="" 
+     s3Endpoint="http://lrs-minio.{{ .Release.Namespace }}.svc.cluster.local:9000" 
+     s3PathStyle="true" 
+     s3Region="us-east-1" 
+     s3StorageClass="STANDARD" 
+     secretKey="liferayPassword" 
+     signerOverride="AWSS3V4SignerType"
+  osgi-com.liferay.portal.search.elasticsearch7.configuration.ElasticsearchConfiguration: |+
+    additionalConfigurations=""
+    additionalIndexConfigurations=""
+    additionalTypeMappings=""
+    authenticationEnabled="false"
+    bootstrapMlockAll="false"
+    clusterName="LiferayElasticsearchCluster"
+    discoveryZenPingUnicastHostsPort="9300-9400"
+    embeddedHttpPort="9201"
+    httpCORSAllowOrigin="/https?://localhost(:[0-9]+)?/"
+    httpCORSConfigurations=""
+    httpCORSEnabled="true"
+    httpSSLEnabled="false"
+    indexNamePrefix="liferay-"
+    indexNumberOfReplicas=""
+    indexNumberOfShards=""
+    logExceptionsOnly="true"
+    networkBindHost=""
+    networkHost=""
+    networkHostAddresses=[ \
+      "http://elasticsearch-master.{{ .Release.Namespace }}.svc.cluster.local:9200", \
+      ]
+    networkPublishHost=""
+    nodeName=""
+    operationMode="REMOTE"
+    overrideTypeMappings=""
+    productionModeEnabled="true"
+    remoteClusterConnectionId=""
+    restClientLoggerLevel="ERROR"
+    sidecarDebug="false"
+    sidecarDebugSettings="-agentlib:jdwp\=transport\=dt_socket,address\=8001,server\=y,suspend\=y,quiet\=y"
+    sidecarHeartbeatInterval="10000"
+    sidecarHome="elasticsearch7"
+    sidecarHttpPort=""
+    sidecarJVMOptions=[ \
+      "-Xms1g", \
+      "-Xmx1g", \
+      "-XX:+AlwaysPreTouch", \
+      ]
+    sidecarShutdownTimeout="10000"
+    transportTcpPort=""
+    truststorePath="/path/to/localhost.p12"
+    truststoreType="pkcs12"
+    username="elastic"
 kind: ConfigMap
 metadata:
   name: liferay-config

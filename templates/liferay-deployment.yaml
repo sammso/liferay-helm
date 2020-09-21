@@ -1,7 +1,7 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-    name: {{ .Release.Name }}-portal
+    name: {{ .Release.Name }}-liferay
     labels:
         app: liferay
 spec:
@@ -51,16 +51,16 @@ spec:
               configMap:
                 name: liferay-config
                 items:
-                {{- if .Values.osgiConfig }}
-                {{- range $fileName, $config := .Values.osgiConfig }}
-                - key: osgi-{{ $fileName }}
-                  path: osgi/configs/{{ $fileName }}.config
-                {{- end }}
-                {{- end }}
                 - key: portal-ext.properties
                   path: portal-ext.properties 
+                - key: jdbctcp.xml
+                  path: jdbctcp.xml
                 - key: tomcat-server.xml
                   path: tomcat/conf/server.xml 
+                - key: osgi-com.liferay.portal.store.s3.configuration.S3StoreConfiguration
+                  path: osgi/configs/com.liferay.portal.store.s3.configuration.S3StoreConfiguration.config                  
+                - key: osgi-com.liferay.portal.search.elasticsearch7.configuration.ElasticsearchConfiguration
+                  path: osgi/configs/com.liferay.portal.search.elasticsearch7.configuration.ElasticsearchConfiguration.config
             - name: liferay-scripts-vol
               configMap:
                 name: liferay-scripts

@@ -3,7 +3,9 @@ data:
   configure.sh: |+
     \cp -Rf /liferayconfigs/osgi/configs/* /opt/liferay/osgi/configs/
     \cp -Rf /liferayconfigs/tomcat/conf/* /opt/liferay/tomcat/conf/
+    \cp -Rf /liferayconfigs/tomcat/lib/* /opt/liferay/tomcat/lib/
     \cp -f /liferayconfigs/portal-ext.properties /opt/liferay/
+    \cp -f /liferayconfigs/jdbctcp.xml /opt/liferay/
 
     chown -R liferay:liferay /opt/liferay
 

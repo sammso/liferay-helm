@@ -3,7 +3,7 @@ kind: Service
 metadata:
   labels:
     app: liferay
-  name: {{ .Release.Name }}-service
+  name: {{ .Release.Name }}-liferay
 spec:
   ports:
   - name: "8080"
