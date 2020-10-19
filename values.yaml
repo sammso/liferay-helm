@@ -1,10 +1,10 @@
 replicaCount: 1
 image:
   # repository: # Custom repository if neeed TODO:
-  name: liferay/portal
+  name: sohlman/lifekube
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: 7.3.4-ga5
+  tag: "20201012"
   debug: true
   spring:
     profiles: generic
@@ -14,161 +14,47 @@ image:
 environmentalVariables:
   LIFERAY_JAVA_OPTS: -Xms3g -Xmx3g
   LIFERAY_MODULE_PERIOD_FRAMEWORK_PERIOD_PROPERTIES_PERIOD_OSGI_PERIOD_CONSOLE: 0.0.0.0:11311
-  LIFERAY_WEB_PERIOD_SERVER_PERIOD_DISPLAY_PERIOD_NODE: "true"
-  LIFERAY_REDIRECT_PERIOD_URL_PERIOD_SECURITY_PERIOD_MODE: "domain"
-  LIFERAY_REDIRECT_PERIOD_URL_PERIOD_DOMAINS_PERIOD_ALLOWED: 
-  DOMAINNAME: "{{ hello }}"
-#
-# tomcat.xml server.xml at .yaml frormat
-# 
+  LIFERAY_REDIRECT_PERIOD_URL_PERIOD_SECURITY_PERIOD_MODE: domain
 tomcat:
-    Server:
-      Listener:
-        - _className: org.apache.catalina.startup.VersionLoggerListener
-        - _className: org.apache.catalina.core.AprLifecycleListener
-          _SSLEngine: 'on'
-        - _className: org.apache.catalina.core.JreMemoryLeakPreventionListener
-        - _className: org.apache.catalina.mbeans.GlobalResourcesLifecycleListener
-        - _className: org.apache.catalina.core.ThreadLocalLeakPreventionListener
-      GlobalNamingResources:
-        Resource:
-          _name: UserDatabase
-          _auth: Container
-          _type: org.apache.catalina.UserDatabase
-          _description: User database that can be updated and saved
-          _factory: org.apache.catalina.users.MemoryUserDatabaseFactory
-          _pathname: conf/tomcat-users.xml
-      Service:
-        Executor:
-          _name: tomcatThreadPool
-          _namePrefix: catalina-exec-
-          _maxThreads: '150'
-          _minSpareThreads: '4'
-        Connector:
-          - _executor: tomcatThreadPool
-            _port: '8080'
-            _protocol: HTTP/1.1
-            _connectionTimeout: '20000'
-            _redirectPort: '8443'
-            _URIEncoding: UTF-8
-            _scheme: https
-            _secure: 'true'
-          - _executor: tomcatThreadPool
-            _port: '8081'
-            _protocol: HTTP/1.1
-            _connectionTimeout: '20000'
-            _redirectPort: '8443'
-            _URIEncoding: UTF-8
-        Engine:
-          Realm:
-            Realm:
-              _className: org.apache.catalina.realm.UserDatabaseRealm
-              _resourceName: UserDatabase
-            _className: org.apache.catalina.realm.LockOutRealm
-          Host:
-            _name: localhost
-            _appBase: webapps
-            _unpackWARs: 'true'
-            _autoDeploy: 'true'
-          _name: Catalina
-          _defaultHost: localhost
-        _name: Catalina
-      _port: '8005'
-      _shutdown: SHUTDOWN
-# TODO: not supported yet
-#system.properties:
-#  none: ''
-
-#
-# portal-ext.properties
-#
-# TODO: Add suport for \n arrays
-#
-portalProperties:
-  company.default.name: Rancher Portal
-  company.default.locale: fi_FI
-  company.default.time.zone: Europe/Helsinki
-  timezones:
-  - Pacific/Midway
-  - Pacific/Honolulu
-  - America/Anchorage
-  - America/Los_Angeles
-  - America/Phoenix
-  - America/Denver
-  - America/Chicago
-  - America/New_York
-  - America/Caracas
-  - America/Puerto_Rico
-  - America/St_Johns
-  - America/Sao_Paulo
-  - America/Noronha
-  - Atlantic/Azores
-  - UTC
-  - Europe/Lisbon
-  - Europe/Paris
-  - Europe/Helsinki
-  - Europe/Istanbul
-  - Asia/Jerusalem
-  - Asia/Baghdad
-  - Asia/Tehran
-  - Asia/Dubai
-  - Asia/Kabul
-  - Asia/Karachi
-  - Asia/Calcutta
-  - Asia/Katmandu
-  - Asia/Dhaka
-  - Asia/Rangoon
-  - Asia/Saigon
-  - Asia/Shanghai
-  - Asia/Tokyo
-  - Asia/Seoul
-  - Australia/Perth
-  - Australia/Eucla
-  - Australia/Darwin
-  - Australia/Sydney
-  - Australia/Lord_Howe
-  - Pacific/Guadalcanal
-  - Pacific/Auckland
-  - Pacific/Enderbury
-  - Pacific/Kiritimati
-  dl.store.impl: com.liferay.portal.store.s3.S3Store
-  jdbc.default.driverClassName: com.mysql.cj.jdbc.Driver
-  jdbc.default.url: jdbc:mysql://lrs-mysql.lr1.svc.cluster.local/lportal?characterEncoding=UTF-8&dontTrackOpenResources=true&holdResultsOpenOverStatementClose=true&serverTimezone=GMT&useFastDateParsing=false&useUnicode=true
-  jdbc.default.username: root
-  jdbc.default.password: admin
-#
-#  OSGi configurations at .yaml format
-#
-osgiConfig:
-  com.liferay.portal.store.s3.configuration.S3StoreConfiguration:
-    accessKey: liferaySecret
+  redis:
+    enabled: true
+liferay:
+  S3:
+    enabled: true
     bucketName: liferay
-    cacheDirCleanUpExpunge: 7
-    cacheDirCleanUpFrequency: 100
-    connectionProtocol: HTTP
-    connectionTimeout: 10000
-    corePoolSize: 7
-    httpClientMaxConnections: 50
-    httpClientMaxErrorRetry: 5
-    maxPoolSize: 20
-    minimumUploadPartSize: "5242880"
-    multipartUploadThreshold: "10485760"
-    ntlmProxyDomain: ''
-    ntlmProxyWorkstation: ''
-    proxyAuthType: none
-    proxyHost: ''
-    proxyPassword: ''
-    proxyPort: 12345
-    proxyUsername: ''
-    s3Endpoint: 'http://lrs-minio.lr1.svc.cluster.local:9000'
-    s3PathStyle: true
-    s3Region: us-east-1
-    s3StorageClass: STANDARD
+    accessKey: liferaySecret
     secretKey: liferayPassword
-    signerOverride: AWSS3V4SignerType
-#  com.liferay.portal.search.elasticsearch7.configuration.ElasticsearchConfiguration:
-#    operationMode: REMOTE
-#    indexNamePrefix: liferay-
-#    transportAddresses: 'elasticsearch-master.lr1.svc.cluster.local:9300'
-#    clusterName: LiferayElasticsearchCluster
-#    logExceptionsOnly: false
+    s3Endpoint:
+      name:
+      nameSpace:
+  elastic:
+    enabled: true
+  configmaps:
+  - name:
+    toPath:
+minio:
+  persistence:
+    size: 10Gi
+  accessKey: liferaySecret
+  secretKey: liferayPassword
+  ingress:
+    enabled: false
+  buckets:
+  - name: liferay
+    policy: none
+    purge: false
+elastic:
+  clusterName: LiferayElasticsearchCluster
+  volumeClaimTemplate:
+    resources:
+      requests:
+        storage: 10Gi
+mysql:
+  mysqlRootPassword: admin
+  initializationFiles:
+    first-db.sql: |-
+      CREATE DATABASE IF NOT EXISTS lportal DEFAULT CHARACTER SET utf8 DEFAULT COLLATE utf8_general_ci;
+  persistence:
+    size: 10Gi
+redis:
+  password: asdQWE123@@@

@@ -1,0 +1,33 @@
+apiVersion: v1
+data:
+  portal-ext.properties: |+ 
+    dl.store.impl=com.liferay.portal.store.s3.S3Store 
+  com.liferay.portal.store.s3.configuration.S3StoreConfiguration: |+ 
+     accessKey="{{ .Values.liferay.S3.accessKey }}" 
+     bucketName="{{ .Values.liferay.S3.bucketName }}"
+     cacheDirCleanUpExpunge={{ .Values.liferay.S3.cacheDirCleanUpExpunge | default "7" | quote }} 
+     cacheDirCleanUpFrequency={{ .Values.liferay.S3.cacheDirCleanUpFrequency | default "100" | quote }}
+     connectionProtocol={{ .Values.liferay.S3.connectionProtocol | default "HTTP" | quote }}
+     connectionTimeout={{ .Values.liferay.S3.connectionTimeout | default "10000" | quote }}
+     corePoolSize={{ .Values.liferay.S3.corePoolSize | default "7" | quote }}
+     httpClientMaxConnections={{ .Values.liferay.S3.httpClientMaxConnections | default "50" | quote }}
+     httpClientMaxErrorRetry={{ .Values.liferay.S3.httpClientMaxErrorRetry | default "5" | quote }}
+     maxPoolSize={{ .Values.liferay.S3.maxPoolSize | default "20" | quote }}
+     minimumUploadPartSize={{ .Values.liferay.S3.minimumUploadPartSize | default "5242880" | quote }}
+     multipartUploadThreshold={{ .Values.liferay.S3.multipartUploadThreshold | default "10485760" | quote }}
+     ntlmProxyDomain={{ .Values.liferay.S3.ntlmProxyDomain | default "" | quote }}
+     ntlmProxyWorkstation={{ .Values.liferay.S3.ntlmProxyWorkstation | default "" | quote }}
+     proxyAuthType={{ .Values.liferay.S3.proxyAuthType | default "none" | quote }} 
+     proxyHost="" 
+     proxyPassword="" 
+     proxyPort="12345" 
+     proxyUsername="" 
+     s3Endpoint="http://{{ .Release.Name }}-minio.{{ .Release.Namespace }}.svc.cluster.local:9000" 
+     s3PathStyle="true" 
+     s3Region="us-east-1" 
+     s3StorageClass="STANDARD" 
+     secretKey="{{ .Values.liferay.S3.secretKey }}" 
+     signerOverride="AWSS3V4SignerType"
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-liferay-s3-config

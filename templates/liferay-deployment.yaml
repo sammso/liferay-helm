@@ -1,13 +1,17 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-    name: {{ .Release.Name }}-liferay
+    name: {{ template "liferay.fullname" . }}
     labels:
-        app: liferay
+      app: {{ template "liferay.name" . }}
+      chart: {{ template "liferay.chart" . }}
+      release: {{ .Release.Name }}
+      heritage: {{ .Release.Service }}
 spec:
     selector:
         matchLabels:
-            app: liferay
+            app: {{ .Release.Name }}-liferay
+            type: portal
     progressDeadlineSeconds: 600
     replicas: 1
     strategy:
@@ -18,14 +22,27 @@ spec:
     template:
         metadata:
             labels:
-                app: liferay
+                app: {{ .Release.Name }}-liferay
+                type: portal
         spec:
+            initContainers:
+              - name: init-s3
+                image: busybox:1.32
+                command: ['sh', '-c', "date; until nslookup {{ .Release.Name }}-minio.{{ .Release.Namespace }}.svc.cluster.local; do echo waiting for minio; sleep 2; done; date"]
+              - name: init-elasticsearch
+                image: busybox:1.32
+                command: ['sh', '-c', "date; until nslookup elasticsearch-master.{{ .Release.Namespace }}.svc.cluster.local; do echo waiting for elasticsearch; sleep 2; done; date"]
+              - name: init-mysql
+                image: busybox:1.32
+                command: ['sh', '-c', "date; until nslookup {{ .Release.Name }}-mysql.{{ .Release.Namespace }}.svc.cluster.local; do echo waiting for mysql; sleep 2; done; date; sleep 60 ; date"]
             containers:
             - env:
               {{- range $key, $value := .Values.environmentalVariables }}
               - name: {{ $key }}
                 value: "{{ $value }}"
               {{- end }}
+              - name: KUBERNETES_DEPLOYTIME
+                value: "{{ now  }}"
               image: "{{ .Values.image.name }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
               resources:
                 requests: 
@@ -36,20 +53,62 @@ spec:
                   cpu: "8"
               name: {{ .Release.Name }}-portal
               ports:
-              - containerPort: 8080 # HTTPS urls generated here
-              - containerPort: 8081 # HTTP urls generated here
-              - containerPort: 11311 # OSGi Gogo shell urls generated here
+              - name: httpslinks
+                containerPort: 8080
+                protocol: TCP
+              - name: httplinks
+                containerPort: 8081
+                protocol: TCP
+              - name: gogoshell
+                containerPort: 11311
+                protocol: TCP
+              - name: jgroups
+                containerPort: 7080
+                protocol: TCP           
+              lifecycle:
+                preStop:
+                  exec:
+                    command:
+                    - /home/liferay/tomcat/bin/shutdown.sh
               volumeMounts: 
-              - mountPath: /liferayconfigs
+              {{- if (  .Values.liferay.S3.enabled ) }}
+              - mountPath: /liferaydefault/S3
+                name: liferay-config-s3-vol
+                readOnly: true
+              {{- end }}
+              {{- if (  .Values.liferay.elastic.enabled ) }}
+              - mountPath: /liferaydefault/elastic
+                name: liferay-config-elastic-vol
+                readOnly: true
+              {{- end }}                
+              - mountPath: /liferayconfigs/
                 name: liferay-config-vol
                 readOnly: true   
               - mountPath: /mnt/liferay/scripts
                 name: liferay-scripts-vol
                 readOnly: true       
             volumes: 
+            {{- if (  .Values.liferay.S3.enabled ) }}
+            - name: liferay-config-s3-vol
+              configMap:
+                name: {{ .Release.Name }}-liferay-s3-config
+                items:
+                - key: com.liferay.portal.store.s3.configuration.S3StoreConfiguration
+                  path: com.liferay.portal.store.s3.configuration.S3StoreConfiguration.config
+                - key: portal-ext.properties
+                  path: portal-ext.properties
+            {{- end }}
+            {{- if (  .Values.liferay.elastic.enabled ) }}
+            - name: liferay-config-elastic-vol
+              configMap:
+                name: {{ .Release.Name }}-liferay-elastic-config
+                items:
+                - key: com.liferay.portal.search.elasticsearch7.configuration.ElasticsearchConfiguration
+                  path: com.liferay.portal.search.elasticsearch7.configuration.ElasticsearchConfiguration.config
+            {{- end }}
             - name: liferay-config-vol
               configMap:
-                name: liferay-config
+                name: {{ .Release.Name }}-liferay-config
                 items:
                 - key: portal-ext.properties
                   path: portal-ext.properties 
@@ -57,13 +116,11 @@ spec:
                   path: jdbctcp.xml
                 - key: tomcat-server.xml
                   path: tomcat/conf/server.xml 
-                - key: osgi-com.liferay.portal.store.s3.configuration.S3StoreConfiguration
-                  path: osgi/configs/com.liferay.portal.store.s3.configuration.S3StoreConfiguration.config                  
-                - key: osgi-com.liferay.portal.search.elasticsearch7.configuration.ElasticsearchConfiguration
-                  path: osgi/configs/com.liferay.portal.search.elasticsearch7.configuration.ElasticsearchConfiguration.config
             - name: liferay-scripts-vol
               configMap:
-                name: liferay-scripts
+                name: {{ .Release.Name }}-liferay-scripts
                 items:
                 - key: configure.sh
                   path: configure.sh
+
+

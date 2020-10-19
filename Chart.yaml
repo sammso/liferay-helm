@@ -1,6 +1,32 @@
 apiVersion: v2
 name: liferay
-appVersion: "7.3.4"
-description: Liferay portal CE 7.3.4
+description: Liferay portal deployment
 version: 0.1.0
 type: application
+keywords:
+- portal
+- dxp
+- liferay
+home: https://github.com/sampsa.sohlman/liferay-helm
+icon: 
+sources:
+- https://github.com/sampsa.sohlman/liferay-helm
+maintainers:
+- name: Sampsa Sohlman
+  email: sampsa@sohlman.com
+dependencies:
+  - name: minio 
+    version: 6.1.2
+    repository: https://helm.min.io
+#    enabled: liferay.S3.enabled
+  - name: elasticsearch
+    version: 7.9.1
+    repository: https://helm.elastic.co 
+#    enabled: liferay.elastic.enabled
+  - name: mysql 
+    version: 1.6.7
+    repository: '@stable'
+  - name: redis
+    version: 11.1.1
+    repository: https://charts.bitnami.com/bitnami
+#    enabled: tomcat.redis.enabled

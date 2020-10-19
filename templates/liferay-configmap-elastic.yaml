@@ -1,0 +1,49 @@
+apiVersion: v1
+data:
+  com.liferay.portal.search.elasticsearch7.configuration.ElasticsearchConfiguration: |+
+    additionalConfigurations=""
+    additionalIndexConfigurations=""
+    additionalTypeMappings=""
+    authenticationEnabled="false"
+    bootstrapMlockAll="false"
+    clusterName="LiferayElasticsearchCluster"
+    discoveryZenPingUnicastHostsPort="9300-9400"
+    embeddedHttpPort="9201"
+    httpCORSAllowOrigin="/https?://localhost(:[0-9]+)?/"
+    httpCORSConfigurations=""
+    httpCORSEnabled="true"
+    httpSSLEnabled="false"
+    indexNamePrefix="liferay-"
+    indexNumberOfReplicas=""
+    indexNumberOfShards=""
+    logExceptionsOnly="true"
+    networkBindHost=""
+    networkHost=""
+    networkHostAddresses=[ \
+      "http://elasticsearch-master.{{ .Release.Namespace }}.svc.cluster.local:9200", \
+      ]
+    networkPublishHost=""
+    nodeName=""
+    operationMode="REMOTE"
+    overrideTypeMappings=""
+    productionModeEnabled="true"
+    remoteClusterConnectionId=""
+    restClientLoggerLevel="ERROR"
+    sidecarDebug="false"
+    sidecarDebugSettings="-agentlib:jdwp\=transport\=dt_socket,address\=8001,server\=y,suspend\=y,quiet\=y"
+    sidecarHeartbeatInterval="10000"
+    sidecarHome="elasticsearch7"
+    sidecarHttpPort=""
+    sidecarJVMOptions=[ \
+      "-Xms1g", \
+      "-Xmx1g", \
+      "-XX:+AlwaysPreTouch", \
+      ]
+    sidecarShutdownTimeout="10000"
+    transportTcpPort=""
+    truststorePath="/path/to/localhost.p12"
+    truststoreType="pkcs12"
+    username="elastic"
+kind: ConfigMap
+metadata:
+  name: {{ .Release.Name }}-liferay-elastic-config
