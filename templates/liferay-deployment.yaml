@@ -70,6 +70,22 @@ spec:
                   exec:
                     command:
                     - /home/liferay/tomcat/bin/shutdown.sh
+              livenessProbe:
+                httpGet:
+                  path: /o/health/liveness
+                  port: httpslinks
+                initialDelaySeconds: 600
+                periodSeconds: 30
+                successThreshold: 1
+                timeoutSeconds: 10
+              readinessProbe:
+                httpGet:
+                  path: /o/health/readiness
+                  port: httpslinks
+                initialDelaySeconds: 90
+                periodSeconds: 10
+                successThreshold: 1
+                timeoutSeconds: 10              
               volumeMounts: 
               {{- if (  .Values.liferay.S3.enabled ) }}
               - mountPath: /liferaydefault/S3
