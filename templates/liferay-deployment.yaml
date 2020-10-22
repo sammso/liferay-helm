@@ -51,7 +51,7 @@ spec:
                 limits: 
                   memory: "8128Mi"
                   cpu: "8"
-              name: {{ .Release.Name }}-portal
+              name: liferay-portal
               ports:
               - name: httpslinks
                 containerPort: 8080
@@ -75,17 +75,18 @@ spec:
                   path: /o/health/liveness
                   port: httpslinks
                 initialDelaySeconds: 600
-                periodSeconds: 30
+                periodSeconds: 5
                 successThreshold: 1
-                timeoutSeconds: 10
+                timeoutSeconds: 5
               readinessProbe:
                 httpGet:
                   path: /o/health/readiness
                   port: httpslinks
-                initialDelaySeconds: 90
-                periodSeconds: 10
+                initialDelaySeconds: 40
+                periodSeconds: 5
                 successThreshold: 1
-                timeoutSeconds: 10              
+                failureThreshold: 100
+                timeoutSeconds: 1              
               volumeMounts: 
               {{- if (  .Values.liferay.S3.enabled ) }}
               - mountPath: /liferaydefault/S3
@@ -130,8 +131,12 @@ spec:
                   path: portal-ext.properties 
                 - key: jdbctcp.xml
                   path: jdbctcp.xml
-                - key: tomcat-server.xml
+                - key: tomcat-server.xml 
                   path: tomcat/conf/server.xml 
+                - key: tomcat-context.xml
+                  path: tomcat/conf/context.xml 
+                - key: tomcat-redisson.conf
+                  path: tomcat/conf/redisson.conf
             - name: liferay-scripts-vol
               configMap:
                 name: {{ .Release.Name }}-liferay-scripts

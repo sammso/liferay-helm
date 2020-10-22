@@ -23,6 +23,26 @@ data:
     <Executor maxThreads="150" minSpareThreads="4" name="tomcatThreadPool" namePrefix="catalina-exec-"/>
     </Service>
     </Server>
+  tomcat-context.xml: |+
+    <?xml version="1.0" encoding="UTF-8"?>
+    <Context>
+      <WatchedResource>WEB-INF/web.xml</WatchedResource>
+      <WatchedResource>WEB-INF/tomcat-web.xml</WatchedResource>
+      <WatchedResource>${catalina.base}/conf/web.xml</WatchedResource>
+      <Manager className="com.liferay.redis.redisson.integration.tomcat.LiferayRedissonSessionManager" configPath="${catalina.base}/conf/redisson.conf" readMode="REDIS" updateMode="DEFAULT"/>
+    </Context>
+  tomcat-redisson.conf: |+
+    {
+      "singleServerConfig":{
+        "address": "redis://{{ .Release.Name }}-redis-master.{{ .Release.Namespace }}.svc.cluster.local:6379"
+      },
+      "threads":0,
+      "nettyThreads":0,
+      "transportMode":"NIO",
+      "codec":{
+        "class":"com.liferay.redis.tomcat.client.redisson.codec.FstLiferayCodec"
+      }
+    }
   jdbctcp.xml: |+
     <config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
             xmlns="urn:org:jgroups"
@@ -66,6 +86,7 @@ data:
     cluster.link.enabled=true
     cluster.link.channel.properties.control=/opt/liferay/jdbctcp.xml
     cluster.link.channel.properties.transport.0=/opt/liferay/jdbctcp.xml
+    cluster.link.autodetect.address={{ .Release.Name }}-mysql.{{ .Release.Namespace }}.svc.cluster.local:3306
     jdbc.default.driverClassName=com.mysql.cj.jdbc.Driver
     jdbc.default.password=admin 
     jdbc.default.url=jdbc:mysql://{{ .Release.Name }}-mysql.{{ .Release.Namespace }}.svc.cluster.local/lportal?characterEncoding=UTF-8&dontTrackOpenResources=true&holdResultsOpenOverStatementClose=true&serverTimezone=GMT&useFastDateParsing=false&useUnicode=true 
