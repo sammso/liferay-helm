@@ -4,7 +4,7 @@ image:
   name: sohlman/lifekube
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "20201021-2"
+  tag: "20201026-4"
   debug: true
   spring:
     profiles: generic

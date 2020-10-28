@@ -5,7 +5,7 @@ data:
     \cp -Rf /liferayconfigs/tomcat/conf/* /opt/liferay/tomcat/conf/
     \cp -Rf /liferayconfigs/tomcat/lib/* /opt/liferay/tomcat/lib/
     \cp -f /liferayconfigs/portal-ext.properties /opt/liferay/
-    \cp -f /liferayconfigs/jdbctcp.xml /opt/liferay/  
+    \cp -f /liferayconfigs/jgroups-*.xml /opt/liferay/  
     {{- if (  .Values.liferay.S3.enabled ) }}
     \cp -f /liferaydefault/S3/com.liferay.portal.store.s3.configuration.S3StoreConfiguration.config /opt/liferay/osgi/configs/com.liferay.portal.store.s3.configuration.S3StoreConfiguration.config
     cat /liferaydefault/S3/portal-ext.properties >> /opt/liferay/portal-ext.properties

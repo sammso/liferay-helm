@@ -22,8 +22,8 @@ spec:
     template:
         metadata:
             labels:
-                app: {{ .Release.Name }}-liferay
-                type: portal
+              app: {{ .Release.Name }}-liferay
+              type: portal
         spec:
             initContainers:
               - name: init-s3
@@ -129,8 +129,10 @@ spec:
                 items:
                 - key: portal-ext.properties
                   path: portal-ext.properties 
-                - key: jdbctcp.xml
-                  path: jdbctcp.xml
+                - key: jgroups-kubernetes.xml
+                  path: jgroups-kubernetes.xml
+                - key: jgroups-jdbc.xml
+                  path: jgroups-jdbc.xml
                 - key: tomcat-server.xml 
                   path: tomcat/conf/server.xml 
                 - key: tomcat-context.xml
