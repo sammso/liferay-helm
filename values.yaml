@@ -1,10 +1,10 @@
 replicaCount: 1
 image:
   # repository: # Custom repository if neeed TODO:
-  name: sohlman/lifekube
+  name: liferay/portal
   pullPolicy: IfNotPresent
   # Overrides the image tag whose default is the chart appVersion.
-  tag: "20201026-4"
+  tag: "7.3.5-ga6"
   debug: true
   spring:
     profiles: generic

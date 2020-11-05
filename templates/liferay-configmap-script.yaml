@@ -13,6 +13,7 @@ data:
     {{- if (  .Values.liferay.elastic.enabled ) }}
     \cp -f /liferaydefault/elastic/com.liferay.portal.search.elasticsearch7.configuration.ElasticsearchConfiguration.config /opt/liferay/osgi/configs/com.liferay.portal.search.elasticsearch7.configuration.ElasticsearchConfiguration.config
     {{- end }}
+    \cp -Rf /lifekube/* /opt/liferay/
 
     chown -R liferay:liferay /opt/liferay
 

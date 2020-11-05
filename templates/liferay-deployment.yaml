@@ -35,6 +35,12 @@ spec:
               - name: init-mysql
                 image: busybox:1.32
                 command: ['sh', '-c', "date; until nslookup {{ .Release.Name }}-mysql.{{ .Release.Namespace }}.svc.cluster.local; do echo waiting for mysql; sleep 2; done; date; sleep 60 ; date"]
+              - name: init-lifekube
+                image: sohlman/lifekube:20201104-2
+                command: ['sh', '-c', "cd /files ; cp -R * /opt/liferay/osgi/lifekube"]
+                volumeMounts:
+                - name: lifekube
+                  mountPath: /opt/liferay/osgi/lifekube
             containers:
             - env:
               {{- range $key, $value := .Values.environmentalVariables }}
@@ -103,8 +109,12 @@ spec:
                 readOnly: true   
               - mountPath: /mnt/liferay/scripts
                 name: liferay-scripts-vol
-                readOnly: true       
-            volumes: 
+                readOnly: true
+              - mountPath: /lifekube
+                name: lifekube
+            volumes:
+            - name: lifekube
+              emptyDir: {}
             {{- if (  .Values.liferay.S3.enabled ) }}
             - name: liferay-config-s3-vol
               configMap:

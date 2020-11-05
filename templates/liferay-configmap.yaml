@@ -128,6 +128,12 @@ data:
     jdbc.default.url=jdbc:mysql://{{ .Release.Name }}-mysql.{{ .Release.Namespace }}.svc.cluster.local/lportal?characterEncoding=UTF-8&dontTrackOpenResources=true&holdResultsOpenOverStatementClose=true&serverTimezone=GMT&useFastDateParsing=false&useUnicode=true 
     jdbc.default.username=root 
     timezones=Pacific/Midway, Pacific/Honolulu, America/Anchorage, America/Los_Angeles, America/Phoenix, America/Denver, America/Chicago, America/New_York, America/Caracas, America/Puerto_Rico, America/St_Johns, America/Sao_Paulo, America/Noronha, Atlantic/Azores, UTC, Europe/Lisbon, Europe/Paris, Europe/Helsinki, Europe/Istanbul, Asia/Jerusalem, Asia/Baghdad, Asia/Tehran, Asia/Dubai, Asia/Kabul, Asia/Karachi, Asia/Calcutta, Asia/Katmandu, Asia/Dhaka, Asia/Rangoon, Asia/Saigon, Asia/Shanghai, Asia/Tokyo, Asia/Seoul, Australia/Perth, Australia/Eucla, Australia/Darwin, Australia/Sydney, Australia/Lord_Howe, Pacific/Guadalcanal, Pacific/Auckland, Pacific/Enderbury, Pacific/Kiritimati 
+    module.framework.auto.deploy.dirs=\
+        ${module.framework.configs.dir},\
+        ${module.framework.marketplace.dir},\
+        ${module.framework.modules.dir},\
+        ${module.framework.war.dir}
+
 kind: ConfigMap
 metadata:
   name: {{ .Release.Name }}-liferay-config
