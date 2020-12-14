@@ -50,6 +50,7 @@ spec:
               - name: KUBERNETES_DEPLOYTIME
                 value: "{{ now  }}"
               image: "{{ .Values.image.name }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
+              {{- if eq .Values.deploymentMode "prod" }}
               resources:
                 requests: 
                   memory: "4096Mi"
@@ -57,6 +58,8 @@ spec:
                 limits: 
                   memory: "8128Mi"
                   cpu: "8"
+              {{- end }}
+              name: liferay-portal              
               name: liferay-portal
               ports:
               - name: httpslinks

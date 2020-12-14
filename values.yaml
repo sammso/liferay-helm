@@ -15,6 +15,7 @@ environmentalVariables:
   LIFERAY_JAVA_OPTS: -Xms3g -Xmx3g
   LIFERAY_MODULE_PERIOD_FRAMEWORK_PERIOD_PROPERTIES_PERIOD_OSGI_PERIOD_CONSOLE: 0.0.0.0:11311
   LIFERAY_REDIRECT_PERIOD_URL_PERIOD_SECURITY_PERIOD_MODE: domain
+deploymentMode: prod
 tomcat:
   redis:
     enabled: true
@@ -29,9 +30,6 @@ liferay:
       nameSpace:
   elastic:
     enabled: true
-  configmaps:
-  - name:
-    toPath:
 minio:
   persistence:
     size: 10Gi

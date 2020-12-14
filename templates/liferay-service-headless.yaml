@@ -4,8 +4,8 @@ metadata:
   annotations:
     service.alpha.kubernetes.io/tolerate-unready-endpoints: "true"
   labels:
-    app: {{ .Release.Name }}-liferay-headless
-  name: {{ .Release.Name }}-liferay-headless
+    app: {{ .Release.Name }}-liferay-service-headless
+  name: {{ .Release.Name }}-liferay-service-headless
 spec:
   publishNotReadyAddresses: true
   clusterIP: None
